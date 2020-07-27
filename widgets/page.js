@@ -1,78 +1,162 @@
-import { style } from 'typestyle'
-import { vertical, width, height } from 'csstips'
-import { value, styler, listen, tween, pointer } from 'popmotion'
-import verge from 'verge'
-import { render, useEffect } from 'anujs'
-import { Plugins } from '@capacitor/core'
-// import { mark, back } from '../libs/stacks'
+"use strict";
 
-const { App } = Plugins
-const screenWidth = verge.viewportW()
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.newPage = void 0;
 
-const Page = ({ children }) => {
-  function register(ref) {
-    const page = styler(ref)
-    const pageX = value(0, (x) => page.set('x', x))
+var _typestyle = require("typestyle");
 
-    const closePage = () => {
-      tween({ from: pageX.get(), to: screenWidth }).start({
-        update: (x) => page.set('x', x),
-        complete: () => ref.remove(),
-      })
-    }
+var _csstips = require("csstips");
 
-    // mark(closePage)
+var _popmotion = require("popmotion");
 
-    tween({ from: screenWidth, to: 0, duration: 250 }).start({
-      update: (x) => page.set('x', x),
-      complete: () => {
-        listen(ref, 'mousedown touchstart').start((e) => {
-          // 捕捉鼠标坐标和点击坐标
-          const tapX = e.touches ? e.touches[0].pageX : e.pageX
-          // console.log(tapX);
-          if (tapX < 25) {
-            // 在边缘位置才滑动页面
-            pointer({ x: pageX.get() })
-              .filter(({ x }) => x > 0)
-              .pipe(({ x }) => x)
-              .start(pageX)
+var _verge = _interopRequireDefault(require("verge"));
+
+var _anujs = require("anujs");
+
+var _core = require("@capacitor/core");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+var App = _core.Plugins.App;
+
+var screenWidth = _verge.default.viewportW();
+
+var Page = /*#__PURE__*/function (_Component) {
+  _inherits(Page, _Component);
+
+  var _super = _createSuper(Page);
+
+  function Page(props) {
+    var _this;
+
+    _classCallCheck(this, Page);
+
+    _this = _super.call(this, props);
+
+    _this.register = function (ref) {
+      console.log("register page");
+      var page = (0, _popmotion.styler)(ref);
+      var pageX = (0, _popmotion.value)(0, function (x) {
+        return page.set("x", x);
+      });
+
+      var closePage = function closePage() {
+        (0, _popmotion.tween)({
+          from: pageX.get(),
+          to: screenWidth
+        }).start({
+          update: function update(x) {
+            return page.set("x", x);
+          },
+          complete: function complete() {
+            (0, _anujs.unmountComponentAtNode)(ref);
+            ref.remove();
           }
-        })
+        });
+      }; // mark(closePage);
 
-        listen(ref, 'mouseup touchend').start(() => {
-          if (pageX.get() <= screenWidth / 4) {
-            tween({ from: pageX.get(), to: 0 }).start(pageX)
-          } else {
-            // back()
-          }
-        })
-      },
-    })
 
-    // useEffect(() => {
-    //   // 安卓返回键监听
-    //   App.addListener('backButton', back)
-    //   // 清空监听
-    //   return () => App.removeAllListeners()
-    // })
+      (0, _popmotion.tween)({
+        from: screenWidth,
+        to: 0,
+        duration: 250
+      }).start({
+        update: function update(x) {
+          return page.set("x", x);
+        },
+        complete: function complete() {
+          (0, _popmotion.listen)(ref, "mousedown touchstart").start(function (e) {
+            console.log("touch start"); // 捕捉鼠标坐标和点击坐标
+
+            var tapX = e.touches ? e.touches[0].pageX : e.pageX;
+
+            if (tapX < 25) {
+              // 在边缘位置才滑动页面
+              (0, _popmotion.pointer)({
+                x: pageX.get()
+              }).filter(function (_ref) {
+                var x = _ref.x;
+                return x > 0;
+              }).pipe(function (_ref2) {
+                var x = _ref2.x;
+                return x;
+              }).start(pageX);
+            }
+          });
+          (0, _popmotion.listen)(ref, "mouseup touchend").start(function () {
+            console.log(pageX.get());
+
+            if (pageX.get() <= screenWidth / 4) {
+              (0, _popmotion.tween)({
+                from: pageX.get(),
+                to: 0
+              }).start(pageX);
+            } else {
+              closePage();
+            }
+          });
+        }
+      });
+    };
+
+    return _this;
   }
 
-  return (
-    <c-page
-      class={style(vertical, width('100%'), height('100%'), {
-        position: 'fixed',
-        top: 0,
-        backgroundColor: 'white',
-        zIndex: 999,
-        boxShadow: `-5px 0 10px #b8b8b8`,
-      })}
-      ref={register}
-    >
-      {children}
-    </c-page>
-  )
-}
+  _createClass(Page, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {// App.addListener("backButton", closePage);
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      console.log("unmount");
+      App.removeAllListeners();
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return /*#__PURE__*/React.createElement("c-page", {
+        class: (0, _typestyle.style)(_csstips.vertical, (0, _csstips.width)("100%"), (0, _csstips.height)("100%"), {
+          position: "fixed",
+          top: 0,
+          backgroundColor: "white",
+          zIndex: 999,
+          boxShadow: "-5px 0 10px #b8b8b8"
+        }),
+        ref: this.register
+      }, this.props.children);
+    }
+  }]);
 
-export const newPage = (children) => {
-  render(() => <Page>{children}</Page>, document.body)
-}
+  return Page;
+}(_anujs.Component);
+
+var newPage = function newPage(children) {
+  (0, _anujs.render)( /*#__PURE__*/React.createElement(Page, null, children), document.getElementById("core"));
+};
+
+exports.newPage = newPage;

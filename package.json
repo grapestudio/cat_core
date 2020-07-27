@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Cat engine core",
   "main": "index.js",
+  "scripts": {
+    "build": "babel src --out-dir=."
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/grapestudio/cat_core.git"
@@ -20,5 +23,11 @@
     "popmotion": "^8.7.3",
     "typestyle": "^2.1.0",
     "verge": "^1.10.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4"
   }
 }
