@@ -2,7 +2,7 @@ import { style } from "typestyle";
 import { vertical, width, height } from "csstips";
 import { value, styler, listen, tween, pointer } from "popmotion";
 import verge from "verge";
-import { render, Component, unmountComponentAtNode } from "anujs";
+import { render, Component, createRef, unmountComponentAtNode } from "anujs";
 import { Plugins } from "@capacitor/core";
 
 const { App } = Plugins;
@@ -12,68 +12,72 @@ class Page extends Component {
   constructor(props) {
     super(props);
 
-    this.register = (ref) => {
-      console.log("register page");
-      const page = styler(ref);
-      const pageX = value(0, (x) => page.set("x", x));
-
-      const closePage = () => {
-        tween({
-          from: pageX.get(),
-          to: screenWidth,
-        }).start({
-          update: (x) => page.set("x", x),
-          complete: () => {
-            unmountComponentAtNode(ref);
-            ref.remove();
-          },
-        });
-      };
-
-      // mark(closePage);
-
-      tween({
-        from: screenWidth,
-        to: 0,
-        duration: 250,
-      }).start({
-        update: (x) => page.set("x", x),
-        complete: () => {
-          listen(ref, "mousedown touchstart").start((e) => {
-            console.log("touch start");
-            // 捕捉鼠标坐标和点击坐标
-            const tapX = e.touches ? e.touches[0].pageX : e.pageX;
-            if (tapX < 25) {
-              // 在边缘位置才滑动页面
-              pointer({ x: pageX.get() })
-                .filter(({ x }) => x > 0)
-                .pipe(({ x }) => x)
-                .start(pageX);
-            }
-          });
-
-          listen(ref, "mouseup touchend").start(() => {
-            console.log(pageX.get());
-            if (pageX.get() <= screenWidth / 4) {
-              tween({
-                from: pageX.get(),
-                to: 0,
-              }).start(pageX);
-            } else {
-              closePage();
-            }
-          });
-        },
-      });
-    };
+    this.dom = createRef()
+    this.startListener = null
+    this.endListner = null
+    this.close = null
   }
 
   componentDidMount() {
-    // App.addListener("backButton", closePage);
+    console.log("register page");
+    const page = styler(this.dom.current);
+    const pageX = value(0, x => page.set("x", x));
+
+    this.close = () => {
+      tween({
+        from: pageX.get(),
+        to: screenWidth,
+      }).start({
+        update: (x) => page.set("x", x),
+        complete: () => unmountComponentAtNode(this.dom.current.parentNode)
+      });
+    };
+
+    tween({
+      from: screenWidth,
+      to: 0,
+      duration: 250,
+    }).start({
+      update: (x) => page.set("x", x),
+      complete: () => {
+        this.startListener = listen(this.dom.current, "mousedown touchstart").start((e) => {
+          // 捕捉鼠标坐标和点击坐标
+          const tapX = e.touches ? e.touches[0].pageX : e.pageX;
+          console.log("touch start:", tapX);
+          if (tapX < 25) {
+            // 在边缘位置才滑动页面
+            pointer({ x: pageX.get() })
+              .filter(({ x }) => x > 0)
+              .pipe(({ x }) => x)
+              .start(pageX);
+          }
+        });
+
+        this.endListner = listen(this.dom.current, "mouseup touchend").start(() => {
+          console.log('touchend:', pageX.get());
+          console.log('screenWidth / 4:', screenWidth / 4)
+
+          const criticalLine = screenWidth / 4
+          if (pageX.get() <= criticalLine && pageX.get() > 0) {
+            tween({
+              from: pageX.get(),
+              to: 0,
+            }).start(pageX);
+          } else if (pageX.get() > criticalLine) {
+            this.close();
+          }
+        });
+      },
+    });
+
+    App.addListener("backButton", this.close);
   }
 
   componentWillUnmount() {
     console.log("unmount");
+    this.startListener.stop();
+    this.endListner.stop();
+
     App.removeAllListeners();
   }
 
@@ -87,7 +91,7 @@ class Page extends Component {
           zIndex: 999,
           boxShadow: `-5px 0 10px #b8b8b8`,
         })}
-        ref={this.register}
+        ref={this.dom}
       >
         {this.props.children}
       </c-page>
@@ -95,6 +99,5 @@ class Page extends Component {
   }
 }
 
-export const newPage = (children) => {
-  render(<Page>{children}</Page>, document.getElementById("core"));
-};
+export const newPage = (children) => render(<Page>{children}</Page>, document.getElementById("core"));
+

@@ -5,9 +5,15 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.SafeArea = exports.Detect = exports.default = void 0;
 
 var Capacitor = _interopRequireWildcard(require("@capacitor/core"));
+
+var _detectBrowser = require("detect-browser");
+
+var _safeAreaInsets = _interopRequireDefault(require("safe-area-insets"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -15,3 +21,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var _default = Capacitor;
 exports.default = _default;
+var Detect = _detectBrowser.detect;
+exports.Detect = Detect;
+var SafeArea = _safeAreaInsets.default;
+exports.SafeArea = SafeArea;

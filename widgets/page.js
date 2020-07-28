@@ -56,15 +56,24 @@ var Page = /*#__PURE__*/function (_Component) {
     _classCallCheck(this, Page);
 
     _this = _super.call(this, props);
+    _this.dom = (0, _anujs.createRef)();
+    _this.startListener = null;
+    _this.endListner = null;
+    _this.close = null;
+    return _this;
+  }
 
-    _this.register = function (ref) {
-      console.log("register page");
-      var page = (0, _popmotion.styler)(ref);
+  _createClass(Page, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      var page = (0, _popmotion.styler)(this.dom.current);
       var pageX = (0, _popmotion.value)(0, function (x) {
         return page.set("x", x);
       });
 
-      var closePage = function closePage() {
+      this.close = function () {
         (0, _popmotion.tween)({
           from: pageX.get(),
           to: screenWidth
@@ -73,12 +82,10 @@ var Page = /*#__PURE__*/function (_Component) {
             return page.set("x", x);
           },
           complete: function complete() {
-            (0, _anujs.unmountComponentAtNode)(ref);
-            ref.remove();
+            return (0, _anujs.unmountComponentAtNode)(_this2.dom.current.parentNode);
           }
         });
-      }; // mark(closePage);
-
+      };
 
       (0, _popmotion.tween)({
         from: screenWidth,
@@ -89,9 +96,8 @@ var Page = /*#__PURE__*/function (_Component) {
           return page.set("x", x);
         },
         complete: function complete() {
-          (0, _popmotion.listen)(ref, "mousedown touchstart").start(function (e) {
-            console.log("touch start"); // 捕捉鼠标坐标和点击坐标
-
+          _this2.startListener = (0, _popmotion.listen)(_this2.dom.current, "mousedown touchstart").start(function (e) {
+            // 捕捉鼠标坐标和点击坐标
             var tapX = e.touches ? e.touches[0].pageX : e.pageX;
 
             if (tapX < 25) {
@@ -107,33 +113,27 @@ var Page = /*#__PURE__*/function (_Component) {
               }).start(pageX);
             }
           });
-          (0, _popmotion.listen)(ref, "mouseup touchend").start(function () {
-            console.log(pageX.get());
+          _this2.endListner = (0, _popmotion.listen)(_this2.dom.current, "mouseup touchend").start(function () {
+            var criticalLine = screenWidth / 4;
 
-            if (pageX.get() <= screenWidth / 4) {
+            if (pageX.get() <= criticalLine && pageX.get() > 0) {
               (0, _popmotion.tween)({
                 from: pageX.get(),
                 to: 0
               }).start(pageX);
-            } else {
-              closePage();
+            } else if (pageX.get() > criticalLine) {
+              _this2.close();
             }
           });
         }
       });
-    };
-
-    return _this;
-  }
-
-  _createClass(Page, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {// App.addListener("backButton", closePage);
+      App.addListener("backButton", this.close);
     }
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
-      console.log("unmount");
+      this.startListener.stop();
+      this.endListner.stop();
       App.removeAllListeners();
     }
   }, {
@@ -147,7 +147,7 @@ var Page = /*#__PURE__*/function (_Component) {
           zIndex: 999,
           boxShadow: "-5px 0 10px #b8b8b8"
         }),
-        ref: this.register
+        ref: this.dom
       }, this.props.children);
     }
   }]);
@@ -156,7 +156,7 @@ var Page = /*#__PURE__*/function (_Component) {
 }(_anujs.Component);
 
 var newPage = function newPage(children) {
-  (0, _anujs.render)( /*#__PURE__*/React.createElement(Page, null, children), document.getElementById("core"));
+  return (0, _anujs.render)( /*#__PURE__*/React.createElement(Page, null, children), document.getElementById("core"));
 };
 
 exports.newPage = newPage;
